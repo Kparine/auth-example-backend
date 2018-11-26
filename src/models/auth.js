@@ -1,5 +1,5 @@
 const db = require('../../db')
-const bcrypt = require('bcrypt-as-promised')
+const bcrypt = require('bcrypt')
 const userModel = require('./users')
 
 //////////////////////////////////////////////////////////////////////////////
@@ -17,8 +17,28 @@ const userModel = require('./users')
 // 5. "return/continue" promise
 //////////////////////////////////////////////////////////////////////////////
 
-function login(username, password){
+function login(username, password) {
+  let user
 
+  return userModel.getOneByUserName(username)
+    .then(function (data) {
+      if (!data) throw {
+        status: 400,
+        message: 'Bad request'
+      }
+
+      user = data
+
+      return bcrypt.compare(password, data.password)
+    })
+  if (!status) throw {
+      status: 400,
+      message: 'Bad request'
+    }
+    .then(function () {
+      delete user.password
+      return user
+    })
 }
 
 module.exports = {

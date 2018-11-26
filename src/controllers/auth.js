@@ -16,9 +16,23 @@ const jwt = require('jsonwebtoken')
 //////////////////////////////////////////////////////////////////////////////
 
 function login(req, res, next){
-
+  if(!req.body.username) {
+    return next({status:404, message:'Bad request'})
+  }
+  if(!req.body.password){
+    return next({status: 400, message:'Bad request'}) 
+  }
+  authModel.login(req.body.username, req.body.password)
+  .then(function(user){
+    const token = jwt.sign({id: user.id}, process.env.SECRET)
+    return res.status(200).send({token})
+  })
+  .catch(next)
 }
 
+function getAuthStatus(req, res, next){
+  res.status(200).send({ id:req.claim.id })
+}
 //////////////////////////////////////////////////////////////////////////////
 // Quality of Life functions
 //////////////////////////////////////////////////////////////////////////////
