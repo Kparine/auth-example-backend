@@ -20,25 +20,25 @@ const userModel = require('./users')
 function login(username, password) {
   let user
 
-  return userModel.getOneByUserName(username)
-    .then(function (data) {
-      if (!data) throw {
-        status: 400,
-        message: 'Bad request'
-      }
+    return userModel.getOneByUserName(username)
+  .then(function(data){
+    // 1a. if not, return a 400 with appropriate error message
+    if(!data) throw { status: 400, message: "Bad Request"}
 
-      user = data
+    // save user for later use
+    user = data
 
-      return bcrypt.compare(password, data.password)
-    })
-  if (!status) throw {
-      status: 400,
-      message: 'Bad request'
-    }
-    .then(function () {
-      delete user.password
-      return user
-    })
+    // 2. compare password in the database with the password provided by user
+    return bcrypt.compare(password, data.password)
+  })
+  .then(function(status){
+    if(!status) throw { status: 401, message: "Unauthorized"}
+
+    // 4. strip hashed password away from object
+    delete user.password
+    // 5. "return/continue" promise
+    return user
+  })
 }
 
 module.exports = {
